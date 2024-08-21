@@ -111,7 +111,7 @@ function Login() {
             </div>
             <button type="submit" className="loginBtn">Login</button>
         </form>
-            <button className="signUpBtn">SignUp</button>
+            <button className="signUpBtn" onClick={navigateToSignUp}>SignUp</button>
 
         {errorMessage && <div className="error-message">{errorMessage}</div>} {/* Conditionally render the error message */}
     </div>
