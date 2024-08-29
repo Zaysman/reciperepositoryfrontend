@@ -152,4 +152,7 @@ class NutritionInfo {
     setPotassium(potassium) {
       this.potassium = potassium;
     }
+  
   }
+
+  export default NutritionInfo;

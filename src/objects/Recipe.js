@@ -162,3 +162,5 @@ class Recipe {
         this._comments.splice(index, 1);
     }
 }
+
+export default Recipe;

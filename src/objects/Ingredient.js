@@ -47,8 +47,8 @@ class Ingredient {
 
     setRecipeID(recipeID) {
         this.recipeID = recipeID;
-    }
-
-    
+    }    
 
 }
+
+export default Ingredient;

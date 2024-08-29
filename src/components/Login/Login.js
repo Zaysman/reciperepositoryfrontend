@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'
+import User from "../../objects/User";
+
 
 const backendUrl = process.env.REACT_APP_RECIPE_REPOSITORY_BACKEND_URL;
 const usernameUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_USER_BY_USERNAME;
@@ -18,6 +20,10 @@ function Login() {
 
     function navigateToHome() {
         navigate("/home");
+    }
+
+    function navigateToHome(user) {
+        navigate("/home", { state : { user: user}});
     }
 
     const handleLoginFormSubmit = async (event) => {
@@ -53,6 +59,7 @@ function Login() {
                 //Handle the data returned from the endpoint
             }).then(data => {
                 console.log(data); //Handle the data from the response.
+                const user = new User(data.userID, data.username, data.password, data.email);
                 
                 //perform username check
                 if(username != data.username) {
@@ -82,7 +89,7 @@ function Login() {
 
                 //Username & Password both match, navigate to Home Screen
                 console.log("Username and passwords match");
-                navigateToHome();
+                navigateToHome(user);
 
             }).catch(error => {
                 console.error('There was a problem with the fetch operation', error);

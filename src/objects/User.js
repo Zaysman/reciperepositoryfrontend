@@ -1,4 +1,3 @@
-
 class User {
 
     constructor(userID, username, password, email) {
@@ -41,7 +40,6 @@ class User {
         this.email = email;
     }
 
-
-    
-    
 }
+
+export default User;

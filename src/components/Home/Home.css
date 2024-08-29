@@ -1,0 +1,24 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section {
+    width: 80%;
+    padding: 20px;
+    margin: 10px 0;
+    text-align: center;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.view-recipes, .search-recipes {
+    flex-grow: 1;
+    height: 250px; /* Example height, adjust as needed */
+}
+
+.edit-profile {
+    height: 100px; /* Smaller section */
+}

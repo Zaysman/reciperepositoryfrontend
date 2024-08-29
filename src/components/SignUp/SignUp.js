@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css'
+import User from "../../objects/User";
 
 const backendUrl = process.env.REACT_APP_RECIPE_REPOSITORY_BACKEND_URL;
 const createUserUrl = process.env.REACT_APP_RECIPE_REPOSITORY_POST_USER_URL; 
@@ -19,6 +20,12 @@ function SignUp() {
     function navigateToHome() {
         navigate("/home");
     }
+
+    function navigateToHome(user) {
+        navigate("/home", { state : { user: user}});
+
+    }
+
     function NavigateToLogin() {
         navigate("/login");
 
@@ -73,10 +80,14 @@ function SignUp() {
             if(response.ok) {
                 const data = await response.json();
                 console.log('Create User is Successful')
+                const user = new User(data.userID, data.username, data.password, data.email);
 
                 //Figure out what to do after user successfully created
                 setErrorMessage('');
-                setConfirmationMessage('User Created Successfully. Please Login.');
+                setConfirmationMessage('User Created Successfully.');
+                navigateToHome(user);
+
+
             } else {
                 //handle errors here
                 console.error('Creating User failed.')
