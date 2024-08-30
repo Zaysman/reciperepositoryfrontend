@@ -23,7 +23,7 @@ function Home() {
     }
 
     function toViewRecipes() {
-        navigate("/viewrecipes");
+        navigate("/viewrecipes", {state : {user: user}});
     }
 
     function toSearchRecipes() {
