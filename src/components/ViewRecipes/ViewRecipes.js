@@ -7,6 +7,8 @@ import User from '../../objects/User'
 
 const backendUrl = process.env.REACT_APP_RECIPE_REPOSITORY_BACKEND_URL;
 const getRecipesByAuthorIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_RECIPES_BY_AUTHOR_ID;
+const getFavoritedRecipesByUserIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_FAVORITEDRECIPES_BY_USER_ID;
+const getRecipesByRecipeIDsUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_RECIPES_BY_RECIPE_IDS;
 
 function ViewRecipes() {
     const navigate = useNavigate();
@@ -34,8 +36,6 @@ function ViewRecipes() {
         setSelectedRecipeType('added');
         
         console.log("Retrieving Added recipes by user");
-
-        
 
         try {
             console.log("Sending Get Request for Added Recipes to Backend");
@@ -76,12 +76,106 @@ function ViewRecipes() {
          //Set the selected radio button state. Do this first so that the UI updates without delay.
          setSelectedRecipeType('favorited');
         
-        
          console.log("Retrieving Favorited Recipes by user");
+
+        var favoritedRecipesData; //Data from the favoritedRecipes Table will be held here.
+
+        //get FavoritedRecipe Table
+         try {
+            console.log("Sending Get Request to get favorited recipes by userID")
+            const userIDString = user.userID.toString();
+
+            //confirm the destination
+            const getFavoritedRecipesUrl = backendUrl + getFavoritedRecipesByUserIDUrl + userIDString;
+            console.log("getFavoritedRecipes Table data", getFavoritedRecipesUrl);
+
+            //send the fetch request
+            await fetch(getFavoritedRecipesUrl).then(response => {
+                //If we don't receive an ok response (200-299), print the error message.
+                if(!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                }
+
+                //Handle retrieving the response. Catch error if one occurs
+                return response.json().catch(err => {
+                    console.error("Failed to parse JSON:", err);
+
+                    throw new Error("Invalid JSON response");
+
+                });
+
+            //Handle the data returned from the fetch request
+            }).then(data => {
+                console.log("data", data)
+
+                favoritedRecipesData = data;
+            })
+
+        } catch(error) {
+            console.error(error);
+        }
+
+        //Confirm we have the correct data from the favoritedRecipes Table
+        console.log("favoritedRecipesData", favoritedRecipesData);
+
+
+        //Iterate through favoritedRecipeData and compose a list of the recipeIDs we need
+        var favoritedRecipeIDs = [];
         
+        for(let i = 0; i < favoritedRecipesData.length; i++) {
+            console.log("id to add", favoritedRecipesData[i].favoritedRecipeID)
+            favoritedRecipeIDs.push(favoritedRecipesData[i].favoritedRecipeID);
+        }
+
+        //Confirm favoritedRecipeIDs has the correct data.
+        console.log("favorited Recipe IDs", favoritedRecipeIDs);
         
-        
-        setRecipes([]);
+        //Send the list to retrieve the recipes.
+        try {
+            console.log("Sending Get Request to get recipes by recipeIDs")
+
+            //confirm destination
+            const params = favoritedRecipeIDs.map(id => `favoritedRecipeIDs=${id}`).join('&');
+            const getRecipesByRecipeIDsDestination = `${backendUrl}${getRecipesByRecipeIDsUrl}?${params}`;
+            console.log("get recipes using multiple recipeIDs url", getRecipesByRecipeIDsDestination);
+
+
+            
+            //send the fetch request
+            await fetch(getRecipesByRecipeIDsDestination, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                //If we don't receive an ok response (200-299), print the error message.
+                if(!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                }
+
+                //Handle retrieving the response. Catch error if one occurs
+                return response.json().catch(err => {
+                    console.error("Failed to parse JSON:", err);
+
+                    throw new Error("Invalid JSON response");
+
+                });
+            //Handle the data returned from the fetch request
+            }).then(data => {
+                //print data
+                console.log("data retrieved from backend");
+
+
+                //update the recipes state with the retrieved recipes
+                setRecipes(data);
+            })
+
+
+        } catch(error) {
+            console.error("There was an issue retrieving the favorited recipes", error);
+        }
+
+        //setRecipes([]);
     }
 
     return(
