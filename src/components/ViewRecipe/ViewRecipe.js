@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './ViewRecipe.css'
+import Recipe from '../../objects/Recipe';
+import User from '../../objects/User';
+
 
 function ViewRecipe() {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const { user, recipe } = location.state || {};
+
+    console.log("User:", user);
+    console.log("Recipe:", recipe);
 
     function toViewRecipes() {
-        navigate("/viewrecipes");
+        navigate("/viewrecipes", {state : {user: user}});
     }
 
     function toSearchRecipes() {

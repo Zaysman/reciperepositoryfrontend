@@ -15,6 +15,13 @@ function ViewRecipes() {
     const location = useLocation();
 
     const user = location.state?.user;
+    const [recipe, setRecipe] = useState(null); //The recipe that the user will select to view
+    
+    function handleSetRecipe(selectedRecipe) {
+        setRecipe(selectedRecipe);
+        console.log("selectedRecipe", recipe);
+    }
+
     console.log("User", user);
 
     //State to store the recipes retrieve from the backend
@@ -27,8 +34,9 @@ function ViewRecipes() {
         navigate("/home");
     }
 
-    function toViewRecipe() {
-        navigate("/viewrecipe");
+    function navigateToViewRecipe(selectedRecipe) {
+        console.log("SelectedRecipe", selectedRecipe);
+        navigate("/viewrecipe", { state: { user: user, recipe: selectedRecipe} });
     }
 
     const handleAddedRecipesRadioInput = async (event) => {
@@ -197,6 +205,7 @@ function ViewRecipes() {
                             <h3>{recipe.recipeTitle}</h3>
                             <p>{recipe.recipeDesc}</p>
                             <p>Rating: {recipe.rating}</p>
+                            <button onClick={() => {navigateToViewRecipe(recipe)}}>Select</button>
                         </div>
                     ))
                 ) : (
