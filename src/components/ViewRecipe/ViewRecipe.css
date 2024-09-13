@@ -1,0 +1,26 @@
+.viewrecipe-container h2 {
+    text-align: center;
+}
+
+.viewrecipe-container h3 {
+    text-align: center;
+}
+
+.recipeinfo-container {
+    width: 100%;
+    margin: 0px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: block;
+}
+
+
+.entry-group {
+   display: flex;
+   align-items: center;
+   
+}
+
+.entry-group label {
+    margin-right: 10px;
+}
