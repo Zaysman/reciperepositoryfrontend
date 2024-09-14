@@ -3,7 +3,7 @@ class JSONRequests {
 
     //The purpose of this method is to send a get request to the backend, handles the response and return the payload on an ok response.
     async sendGetRequest(destinationUrl) {
-        console.log("sending fetch request to:", destinationUrl);
+        console.log("sending GET request to:", destinationUrl);
 
         try {
             const response = await fetch(destinationUrl, {
