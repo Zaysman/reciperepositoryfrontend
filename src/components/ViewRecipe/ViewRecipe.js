@@ -88,14 +88,6 @@ function ViewRecipe() {
     fetchNutritionInfoData(); //fetch the NutritionInfoData;
 
 
-
-
-
-    
-    
-    
-
-
     function navigateToViewRecipes() {
         navigate("/viewrecipes", {state : {user: user}});
     }
@@ -116,8 +108,9 @@ function ViewRecipe() {
             //<button onClick = {navigateToEditRecipe}>To Edit Recipe</button>
             }
             <h2>View Recipe</h2>
-            <h3>{recipe.recipeTitle}</h3>
-            <div className = "recipeinfo-container">
+            <h4>{recipe.recipeTitle}</h4>
+            <div id="recipeinfo-container" className="info-container">
+                <h4>Recipe Info</h4>
                 <div className = "entry-group">
                     <label>Author</label>
                     <p>Author goes here</p>
@@ -144,9 +137,108 @@ function ViewRecipe() {
                 </div>
             </div>
 
-            <div className = "ingredientsinfo-container">
-
+            <div id="nutritioninf-container" className="info-container">
+                <h4>Nutritional Info</h4>
+                <div className = "entry-group">
+                    <label>Calories</label>
+                    <p>{recipe.nutritionInfo.calories}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Saturated Fat</label>
+                    <p>{recipe.nutritionInfo.satFat}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Trans Fat</label>
+                    <p>{recipe.nutritionInfo.transFat}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Cholesterol</label>
+                    <p>{recipe.nutritionInfo.cholesterol}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Sodium</label>
+                    <p>{recipe.nutritionInfo.sodium}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Carbs</label>
+                    <p>{recipe.nutritionInfo.carbs}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Protein</label>
+                    <p>{recipe.nutritionInfo.protein}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Vitamin A</label>
+                    <p>{recipe.nutritionInfo.vitaminA}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>vitamin C</label>
+                    <p>{recipe.nutritionInfo.vitaminC}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>vitamin D</label>
+                    <p>{recipe.nutritionInfo.vitaminD}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Calcium</label>
+                    <p>{recipe.nutritionInfo.calcium}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Iron</label>
+                    <p>{recipe.nutritionInfo.iron}</p>
+                </div>
+                <div className = "entry-group">
+                    <label>Potassium</label>
+                    <p>{recipe.nutritionInfo.potassium}</p>
+                </div>
+                <div className = "entry-group"></div>
             </div>
+
+            <div id="ingredientsinfo-container" className="info-container">
+                <h4>Ingredients</h4>
+                {recipe.ingredients.length > 0 ? (recipe.ingredients.map((ingredient) => (
+                    <div key={ingredient.entryID} className = "entry-group">
+                        <label>Name:</label>
+                        <p>{ingredient.name}</p>
+                        <label>Unit:</label>
+                        <p>{ingredient.unit}</p>
+                        <label>Quantity:</label>
+                        <p>{ingredient.quantity}</p>
+                    </div>
+                ))) : (
+                    <p>No Ingredients to display</p>
+                )};
+            </div>
+            <div id = "preparationinfo-container" className="info-container">
+                <h4>Preparation Steps</h4>
+                {recipe.prepSteps.length > 0 ? (recipe.prepSteps.map((prepStep) => (
+                    <div key = {prepStep.stepID} className = "entry-group">
+                        <label>Step</label>
+                        <p>{prepStep.stepNum}:</p>
+                        <label>Instructions: </label>
+                        <p>{prepStep.stepDesc}</p>
+                    </div>
+                ))) : (<p>No Preparation Steps to display</p>)}
+            </div>
+
+            <div id="commentinfo-container" className="info-container">
+                <h4>Comments</h4>
+                {recipe.comments.length > 0 ? (recipe.comments.map((comment) => (
+                    <div key = {comment.commentID} className = "entry-group">
+                        <label>Author</label>
+                        <p>{comment.commentID}</p>
+                        <label>Comment</label>
+                        <p>{comment.commentContent}</p>
+                        <label>Rating:</label>
+                        <p>{comment.commentRating}</p>
+                    </div>
+                ))) : (<p>No Comments to display</p>)}
+            </div>
+
+            
+                
+            
+
 
         </div>
     );

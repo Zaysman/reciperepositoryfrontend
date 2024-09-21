@@ -6,14 +6,17 @@
     text-align: center;
 }
 
-.recipeinfo-container {
+.viewrecipe-container h4 {
+    text-align: center;
+}
+
+.info-container {
     width: 100%;
-    margin: 0px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     display: block;
 }
-
 
 .entry-group {
    display: flex;
@@ -21,5 +24,9 @@
 }
 
 .entry-group label {
-    margin-right: 10px;
+    margin-right: 5px;
+}
+
+.entry-group p {
+    margin-right: 1%;
 }
