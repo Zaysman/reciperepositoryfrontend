@@ -30,3 +30,9 @@
 .entry-group p {
     margin-right: 1%;
 }
+
+.entry-group button {
+    margin-right: 5px;
+    display:block;
+}
+

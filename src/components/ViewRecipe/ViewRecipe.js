@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './ViewRecipe.css'
 import Recipe from '../../objects/Recipe';
@@ -10,6 +10,7 @@ const ingredientsByRecipeIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_ING
 const stepsByRecipeIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_STEPS_BY_RECIPE_ID_URL;
 const commentsByRecipeIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_COMMENTS_BY_RECIPE_ID_URL;
 const nutritionInfoByrecipeIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_NUTRITIONINFO_BY_RECIPE_ID_URL;
+const userByUserIDUrl = process.env.REACT_APP_RECIPE_REPOSITORY_GET_USER_BY_USERID;
 
 function ViewRecipe() {
     const navigate = useNavigate();
@@ -18,86 +19,70 @@ function ViewRecipe() {
 
     //Check to see if User and recipe where retrieved from ViewRecipes component correctly
     const { user, recipe } = location.state || {};
-
     console.log("User:", user);
     console.log("Recipe:", recipe);
 
-    //get ingredients from backend
-    console.log("Sending Get request to retrieve Ingredients information");
+    //Use state to store author details
+    const [recipeAuthor, setRecipeAuthor] = useState("");
+    const [isLoading, setIsLoading] = useState(true); //Track loading status for all data
+
+
+    //Urls
     const recipeIDString = recipe.recipeID.toString();
+    const getRecipeAuthorUrl = backendUrl + userByUserIDUrl + recipe.authorID.toString();
     const getIngredientsURL = backendUrl + ingredientsByRecipeIDUrl + recipeIDString;
-    
-    console.log("getIngredientsURL:" + getIngredientsURL);
-
-
-    const fetchIngredientData = async () => {
-        try {
-            recipe.ingredients = await jsonRequests.sendGetRequest(getIngredientsURL);
-            console.log("Recipe Ingredients", recipe.ingredients);
-        } catch(error) {
-            console.error("There was an error retrieving the ingredients for the Recipe", error);
-        }
-    }
-    fetchIngredientData(); //fetch the ingredient data once we load in.
-
-    //get steps from backend
-    console.log("Sending Get request to retrieve Steps information");
     const getStepsUrl = backendUrl + stepsByRecipeIDUrl + recipeIDString;
-
-    console.log("getStepsUrl: " + getStepsUrl);
-
-    const fetchStepsData = async () => {
-        try {
-            recipe.prepSteps = await jsonRequests.sendGetRequest(getStepsUrl);
-            console.log("Recipe Preparation Steps", recipe.prepSteps);
-        } catch(error) {
-            console.error("There was an error retrieving the steps for the Recipe", error);
-        }
-    }
-    fetchStepsData(); //fetch the Steps data
-
-
-    //get comments from backend
-    console.log("Sending Get request to retrieve Comments information");
     const getCommentsUrl = backendUrl + commentsByRecipeIDUrl + recipeIDString;
-    console.log("getCommentsUrl: " + getCommentsUrl);
-    
-    const fetchCommentsData = async () => {
-        try {
-            recipe.comments = await jsonRequests.sendGetRequest(getCommentsUrl);
-            console.log("Recipe Comments", recipe.comments);
-        } catch(error) {
-            console.error("There was an error retrieving the comments for the Recipe", error);
-        }
-    }
-    fetchCommentsData(); //fetch the Comment data
-
-    //get NutritionInfo from backend
-    console.log("Sending Get request to retrieve Nutrition info");
     const getNutritionInfoUrl = backendUrl + nutritionInfoByrecipeIDUrl + recipeIDString;
-    console.log("getNutritionInfoUrl: " + getNutritionInfoUrl);
 
-    const fetchNutritionInfoData = async () => {
-        try {
-            recipe.nutritionInfo = await jsonRequests.sendGetRequest(getNutritionInfoUrl);
-            console.log("Recipe NutritionInfo", recipe.nutritionInfo);
+
+    //useEffect for fetching all data at once
+    useEffect(() => {
+        const fetchAllData = async () => {
+            try {
+            //Fetch all data in parallel
+            const [authorData, ingredients, prepSteps, comments, nutritionInfo] = await Promise.all([
+                jsonRequests.sendGetRequest(getRecipeAuthorUrl),
+                jsonRequests.sendGetRequest(getIngredientsURL),
+                jsonRequests.sendGetRequest(getStepsUrl),
+                jsonRequests.sendGetRequest(getCommentsUrl),
+                jsonRequests.sendGetRequest(getNutritionInfoUrl)
+            ]);
+
+            //Set fetched data into the recipe object
+            setRecipeAuthor(authorData.username);
+            recipe.ingredients = ingredients;
+            recipe.prepSteps = prepSteps;
+            recipe.comments = comments;
+            recipe.nutritionInfo = nutritionInfo;
+
+            //Pmce all data is fetched, disable the loading state
+            setIsLoading(false);
         } catch(error) {
-            console.error("There was an error retrieving the nutrition info for the Recipe", error);
+            console.error("Error fetching recipe data:", error);
+            //In case of error, you might still want to stop loading
+            setIsLoading(false);
         }
-    }
-    fetchNutritionInfoData(); //fetch the NutritionInfoData;
-
+    };
+        fetchAllData(); //Call the function when the component mounts
+    }, [getRecipeAuthorUrl, getIngredientsURL, getStepsUrl, getCommentsUrl, getNutritionInfoUrl]);
+    
 
     function navigateToViewRecipes() {
         navigate("/viewrecipes", {state : {user: user}});
     }
 
     function navigateToSearchRecipes() {
-        navigate("/searchrecipe");
+        navigate("/searchrecipe", {state: {user: user}});
     }
 
     function navigateToEditRecipe() {
-        navigate("/editrecipe");
+        navigate("/editrecipe", {state: {user: user, recipe: recipe}});
+    }
+
+    //Conditional rendering based on loading state
+    if(isLoading) {
+        return <div>Loading...</div> //Consider replacing this with a spinner comment later.
     }
 
     return (
@@ -109,11 +94,15 @@ function ViewRecipe() {
             }
             <h2>View Recipe</h2>
             <h4>{recipe.recipeTitle}</h4>
+            <div id="navigationBtn-container" class="entry-group">
+                <button onClick = {navigateToViewRecipes} className="centered-button">To view recipes</button>
+                <button onClick = {navigateToEditRecipe} className="centered-button">To Edit Recipe</button>
+            </div>
             <div id="recipeinfo-container" className="info-container">
                 <h4>Recipe Info</h4>
                 <div className = "entry-group">
-                    <label>Author</label>
-                    <p>Author goes here</p>
+                    <label>Author:</label>
+                    <p>{recipeAuthor}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Description</label>
@@ -137,59 +126,59 @@ function ViewRecipe() {
                 </div>
             </div>
 
-            <div id="nutritioninf-container" className="info-container">
+            <div id="nutritioninfo-container" className="info-container">
                 <h4>Nutritional Info</h4>
                 <div className = "entry-group">
                     <label>Calories</label>
-                    <p>{recipe.nutritionInfo.calories}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.calories ? recipe.nutritionInfo.calories : "N/A"}</p> {/*Check if recipe.nutritionInfo and recipe.nutritionInfo is defined. If Not, print N/A */}
                 </div>
                 <div className = "entry-group">
                     <label>Saturated Fat</label>
-                    <p>{recipe.nutritionInfo.satFat}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.satFat ? recipe.nutritionInfo.satFat : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Trans Fat</label>
-                    <p>{recipe.nutritionInfo.transFat}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.transFat ? recipe.nutritionInfo.transFat : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Cholesterol</label>
-                    <p>{recipe.nutritionInfo.cholesterol}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.cholesterol ? recipe.nutritionInfo.cholesterol : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Sodium</label>
-                    <p>{recipe.nutritionInfo.sodium}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.sodium ? recipe.nutritionInfo.sodium : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Carbs</label>
-                    <p>{recipe.nutritionInfo.carbs}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.carbs ? recipe.nutritionInfo.carbs : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Protein</label>
-                    <p>{recipe.nutritionInfo.protein}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.protein ? recipe.nutritionInfo.protein : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Vitamin A</label>
-                    <p>{recipe.nutritionInfo.vitaminA}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.vitaminA ? recipe.nutritionInfo.vitaminA : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>vitamin C</label>
-                    <p>{recipe.nutritionInfo.vitaminC}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.vitaminC ? recipe.nutritionInfo.vitaminC : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>vitamin D</label>
-                    <p>{recipe.nutritionInfo.vitaminD}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.vitaminD ? recipe.nutritionInfo.vitaminD : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Calcium</label>
-                    <p>{recipe.nutritionInfo.calcium}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.calcium ? recipe.nutritionInfo.calcium : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Iron</label>
-                    <p>{recipe.nutritionInfo.iron}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.iron ? recipe.nutritionInfo.iron : "N/A"}</p>
                 </div>
                 <div className = "entry-group">
                     <label>Potassium</label>
-                    <p>{recipe.nutritionInfo.potassium}</p>
+                    <p>{recipe.nutritionInfo && recipe.nutritionInfo.potassium ? recipe.nutritionInfo.potassium : "N/A"}</p>
                 </div>
                 <div className = "entry-group"></div>
             </div>
@@ -207,7 +196,7 @@ function ViewRecipe() {
                     </div>
                 ))) : (
                     <p>No Ingredients to display</p>
-                )};
+                )}
             </div>
             <div id = "preparationinfo-container" className="info-container">
                 <h4>Preparation Steps</h4>
