@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import './Profile.css'
-import User from "../../objects/User";
+//import User from "../../objects/User";
+import User from "objects/User";
+import JSONRequests from "libraries/JSONRequests";
 
 
 const backendUrl = process.env.REACT_APP_RECIPE_REPOSITORY_BACKEND_URL;
@@ -19,73 +21,77 @@ function Profile() {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [user, setUser] = useState(null);
+    const [submitted, setSubmitted] = useState(false); //New state to track form submission
 
-    let user = location.state?.user;
-    console.log("user profile to edit", user);
-    // const userIDString = user.userID.toString();
+    const jsonRequests = new JSONRequests();
+
+    let stateUser = location.state?.user; //retrieve the user data from location.
+    console.log("user profile to edit", stateUser);
+
+
+    //Urls
+    const userIDString = stateUser.userID.toString();
+    const updateUserDestinationUrl = backendUrl + updateUserUrl + userIDString;
 
     // const updateUserDestinationUrl = backendUrl + updateUserUrl + userIDString;
     // console.log("updateUserDestinationUrl", updateUserDestinationUrl);
 
     //Set values to user values passed from Home
     useEffect(() => {
-        if(user) {
-            setUsername(user.username || '');
-            setPassword(user.password || '');
-            setEmail(user.email || '');
+        if(stateUser) {
+            setUser(stateUser);
+            setUsername(stateUser.username || '');
+            setPassword(stateUser.password || '');
+            setEmail(stateUser.email || '');
         }
-    }, [user]);
+    }, [stateUser]); //Use this hook whenever stateUser changes
 
     function toHome() {
-        navigate("/home", {state : {user: user}});
+        navigate("/home", {state : {user: stateUser}});
     }
 
-    const handleEditProfileFormSubmit = async (event) => {
-        event.preventDefault(); //Prevent default form submission behavior
-        const userIDString = user.userID.toString();
-        const updateUserDestinationUrl = backendUrl + updateUserUrl + userIDString;
-        console.log("updateUserDestinationUrl", updateUserDestinationUrl);
-
-        //Create the payload
-        const payload = {
-            username: username,
-            password: password,
-            email: email
-        };
-
-        console.log("payload", payload);
-
-        try {
-            console.log("Put Request Destination URL:", updateUserDestinationUrl);
+    //useEffect to handle updating the user's data
+    useEffect(() => {
+        const updateUser = async () => {
             
-            //Make the Put request to the Spring Boot endpoint
-            const response = await fetch(updateUserDestinationUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            //Check response status
-            if(response.ok) {
-                const data = await response.json();
-                console.log('Update User is Successful')
-                user = new User(data.userID, data.username, data.password, data.email)
-                setConfirmationMessage('User Updated Successfully');
-            
-            } else {
-                //handle errors here
-                console.error('Updating User failed.');
-                setErrorMessage('An error occurred. Please try again later.');
+            if(!submitted) { //prevent execution before form submission
+                return ;
             }
-        
-        } catch(error) {
-            console.error("An error occurred while processing the put request", error);
+            try {
+            //Create the payload
+            const payload = {
+                username: username,
+                password: password,
+                email: email
+            };
+
+            console.log("payload", payload);
+
+            //Send PUT request to the backend.
+            const data = await jsonRequests.sendPutRequest(updateUserDestinationUrl, payload);
+            
+
+            stateUser = new User(data.userID, data.username, data.password, data.email)
+            setErrorMessage('');
+            setConfirmationMessage('User Updated Successfully');
+            } catch(error) {
+                console.error("There was an error when updating the user", error);
+                setErrorMessage("There was an error when updating the user. Please try again later");
+                setConfirmationMessage('');
+                setSubmitted(false); //reset submission state
+            }
         }
+        updateUser();
 
+    }, [submitted]); //Run this effect when the submitted state changes.
 
-    };
+    const handleEditProfileFormSubmit = async (event) => {
+        event.preventDefault(); //Prevents the default form submission behavior
+        console.log("Inside handleEditProfileFormSubmit");
+        setSubmitted(true); //Set form as submitted to trigger useEffect.
+    }
+
 
     return (
         <div className = "profile-container">

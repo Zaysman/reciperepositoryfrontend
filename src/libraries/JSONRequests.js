@@ -42,7 +42,7 @@ class JSONRequests {
 
             //Check response status
             if(response.ok) {
-                //If the respone is ok, we return the data we recieve from the backend
+                //If the response is ok, we return the data we recieve from the backend
                 const data = response.json();
                 return data; 
             } else {
@@ -52,6 +52,34 @@ class JSONRequests {
 
         } catch(error) {
             console.error("There was an issue with the Post request:", error);
+            throw error; //Re-throw the error so it can be handled by the caller method
+        }
+    }
+
+    async sendPutRequest(destinationUrl, payload) {
+        console.log("Sending Put request to:", destinationUrl);
+
+        try {
+            const response = await fetch(destinationUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            //Check response status
+            if(response.ok) {
+                //If the response is ok, we return the data recieve from the backend
+                const data = response.json();
+                return data;
+            } else {
+                console.error("There was an issue with the response");
+                throw new Error("Network response was not ok: " + response.statusText); //Throw a new error so it can be handled by the caller method.
+            }
+
+        } catch(error) {
+            console.error("There was an issue with the Put request:", error);
             throw error; //Re-throw the error so it can be handled by the caller method
         }
     }

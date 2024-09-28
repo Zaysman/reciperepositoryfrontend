@@ -77,13 +77,11 @@ function SignUp() {
 
             //Convert the data into a user object.
             const fetchedUser = new User(data.userID, data.username, data.password, data.email);
-            setUser(fetchedUser);
-
             setErrorMessage('');
             setConfirmationMessage('User Created Successfully.');
             
-
-            //Navigate to home.
+            setUser(fetchedUser);
+            //Use another useEffect hook to handle navigation
 
             } catch(error) {
                 console.error("There was an error when signing up the user", error);
@@ -101,7 +99,7 @@ function SignUp() {
         if(user) {
             navigate("/home", {state: {user: user}})
         }
-    }, [user, navigate]); //Run effect when user and navigate changes
+    }, [user, navigate]); //Run effect when user or navigate changes
 
     
     const handleSignUpFormSubmit = async (event) => {

@@ -77,6 +77,7 @@ function Login() {
 
     }, [submitted]); //Run effect when 'submitted' changes.
 
+    //useEffect to handle navigation
     useEffect(() => {
         if(user) {
             navigate("/home", {state: {user : user}})
