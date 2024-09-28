@@ -40,7 +40,7 @@ function Login() {
     useEffect(() => {
         const loginUser = async () => {
             
-            if(!submitted) { //prevent executione before form submission.
+            if(!submitted) { //prevent execution before form submission.
                 return; 
             }
 
@@ -67,7 +67,7 @@ function Login() {
                 setUser(fetchedUser);
 
             } catch(error) {
-                console.error("There was an error sending a get request to the backend to retrieve user data based on submitted username.");
+                console.error("There was an error sending a get request to the backend to retrieve user data based on submitted username.", error);
                 setErrorMessage('Login failed. Please try again.');
                 setSubmitted(false); // Reset submission state
             }
@@ -89,81 +89,7 @@ function Login() {
         console.log("Inside handleLoginFormSubmit");
         setSubmitted(true); //Set form as submitted to trigger useEffect
     }
-    //Lambda Expression that handles when the login logic when user clicks the button.
-    // const handleLoginFormSubmit = async (event) => {
-    //     event.preventDefault();
-    //     console.log("inside handleLoginFormSubmit")
-    //     console.log("input Username:", username);
-    //     console.log("input Password:", password);
-
-    //     //Send a get request to the spring backend to get user by username
-    //     try {
-    //         console.log("Sending Get request to Backend");
-            
-    //         console.log("getUsernameURL:", backendUrl+usernameUrl+username);
-
-    //         fetch(getUsernameURL).then(response => {
-    //             //If we don't receive an ok response (200-299), print the error message
-    //             if(!response.ok) {
-    //                 throw new Error('Network response was not ok ' + response.statusText)
-    //             }
-
-                
-    //             return response.json().catch(err => {
-    //                 //Handle the case where parsing JSON fails
-    //                 console.error("Failed to parse JSON:", err);
-                    
-                    
-    //                 setUsername('');
-    //                 setPassword('');
-
-    //                 setErrorMessage('The Username or Password entered was incorrect, please try again.')
-    //                 throw new Error('Invalid JSON response');
-    //             }); //returns the data returned from the endpoint and convert it into a Json object.
-    //             //Handle the data returned from the endpoint
-    //         }).then(data => {
-    //             console.log(data); //Handle the data from the response.
-    //             const user = new User(data.userID, data.username, data.password, data.email);
-                
-    //             //perform username check
-    //             if(username != data.username) {
-    //                 console.log("usernames don't match");
-
-    //                 //clear input fields
-    //                 setUsername('');
-    //                 setPassword('');
-
-    //                 //print error message
-    //                 setErrorMessage('The Username or Password entered was incorrect, please try again.')
-    //                 return;
-    //             }
-
-    //             //perform password check
-    //             if(password != data.password) {
-    //                 console.log("passwords don't match")
-
-    //                 //clear input fields
-    //                 setUsername('');
-    //                 setPassword('');
-
-    //                 //print error message
-    //                 setErrorMessage('The Username or Password entered was incorrect, please try again.')
-    //                 return;
-    //             }
-
-    //             //Username & Password both match, navigate to Home Screen
-    //             console.log("Username and passwords match");
-    //             navigateToHome(user);
-
-    //         }).catch(error => {
-    //             console.error('There was a problem with the fetch operation', error);
-                
-    //         })
-
-    //     } catch(error) {
-    //         console.error('Error: ', error);
-    //     }
-    // }
+    
 
     return (
     <div className = "login-container">

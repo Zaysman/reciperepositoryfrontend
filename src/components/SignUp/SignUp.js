@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css'
 import User from "../../objects/User";
+import JSONRequests from "libraries/JSONRequests";
 
 const backendUrl = process.env.REACT_APP_RECIPE_REPOSITORY_BACKEND_URL;
 const createUserUrl = process.env.REACT_APP_RECIPE_REPOSITORY_POST_USER_URL; 
@@ -9,13 +10,20 @@ const createUserUrl = process.env.REACT_APP_RECIPE_REPOSITORY_POST_USER_URL;
 
 function SignUp() {
     const navigate = useNavigate();
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [user, setUser] = useState(null); //new state to track the user
+    const [submitted, setSubmitted] = useState(false); //New state to track form submission
+
+    const jsonRequest = new JSONRequests();
+
+
+    //Urls
+    const createUserDestinationUrl = backendUrl+createUserUrl;
 
     function navigateToHome() {
         navigate("/home");
@@ -30,75 +38,77 @@ function SignUp() {
         navigate("/login");
 
     }
+
+
+    //UseEffect to handle sign up
+    useEffect(() => {
+        const signUpUser = async () => {
+
+            if(!submitted) { //prevent execution before form submission
+                return;
+            }
+
+            try {
+
+                //Check to see if the data in the password fields match.
+                console.log("Performing password check");
+                if(password.localeCompare(confirmPassword) != 0) { //If the passwords are not equal, then print the error message
+                    setErrorMessage('The passwords entered do not match. Please try again.')
+                    setPassword('');
+                    setConfirmPassword('');
+        
+                    //Stop further code execution
+                    console.log('Password fields do not match ending code execution for signup form submission')
+                    return;
+                }
+
+            
+            //create the payload
+            const payload = {
+                username: username,
+                password: password,
+                email: email
+            };
+
+            console.log("payload", payload);
+
+            //Send request to backend to create user
+            const data = await jsonRequest.sendPostRequest(createUserDestinationUrl, payload);
+
+            //Convert the data into a user object.
+            const fetchedUser = new User(data.userID, data.username, data.password, data.email);
+            setUser(fetchedUser);
+
+            setErrorMessage('');
+            setConfirmationMessage('User Created Successfully.');
+            
+
+            //Navigate to home.
+
+            } catch(error) {
+                console.error("There was an error when signing up the user", error);
+                setErrorMessage(); 
+                setSubmitted(false); //reset submission state
+            }
+
+        };
+        signUpUser();
+
+    }, [submitted]);
+
+    //useEffect to handle navigation
+    useEffect(() => {
+        if(user) {
+            navigate("/home", {state: {user: user}})
+        }
+    }, [user, navigate]); //Run effect when user and navigate changes
+
     
     const handleSignUpFormSubmit = async (event) => {
-        const createUserDestinationUrl = backendUrl+createUserUrl;
-        event.preventDefault();
-        console.log("Submitting Form");
-
-        console.log("username:", username);
-        console.log("password:", password);
-        console.log("confirmPassword:", confirmPassword);
-        console.log("email", email);
-
-        //Check to see if password & confirm passwords are equal
-        console.log("password.localeCompare(confirmPassword):", password.localeCompare(confirmPassword));
-        if(password.localeCompare(confirmPassword) != 0) {
-            setErrorMessage('The passwords entered do not match. Please try again.')
-            setPassword('');
-            setConfirmPassword('');
-
-            //Stop further code execution
-            console.log('Password fields do not match ending code execution for signup form submission')
-            return;
-        }
-
-        console.log("Sending Request to create new user to backend");
-
-        //create the payload
-        const payload = {
-            username: username,
-            password: password,
-            email: email
-        };
-
-        console.log("payload", payload);
-
-        try {
-            console.log("Destination URL:", createUserDestinationUrl);
-
-            //make the Post request to the Spring Boot endpoint
-            const response = await fetch(createUserDestinationUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            //Check response status
-            if(response.ok) {
-                const data = await response.json();
-                console.log('Create User is Successful')
-                const user = new User(data.userID, data.username, data.password, data.email);
-
-                //Figure out what to do after user successfully created
-                setErrorMessage('');
-                setConfirmationMessage('User Created Successfully.');
-                navigateToHome(user);
-
-
-            } else {
-                //handle errors here
-                console.error('Creating User failed.')
-                setErrorMessage('An error occurred. Please try again later.');
-            }
-        } catch(error) {
-            console.error("Error: ", error);
-        }
-
-    };
-
+        event.preventDefault(); //Prevents the default operation of a form submssion. Which is reloading the page
+        console.log("Inside handleSignUpFormSubmit");
+        setSubmitted(true); //Set form as submitted to trigger useEffect.
+    }
 
 
     return (

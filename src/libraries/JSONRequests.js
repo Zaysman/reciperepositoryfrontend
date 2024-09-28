@@ -28,6 +28,34 @@ class JSONRequests {
         }
     }
 
+    async sendPostRequest(destinationUrl, payload) {
+        console.log("Sending POST request to:", destinationUrl);
+
+        try {
+            const response = await fetch(destinationUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            //Check response status
+            if(response.ok) {
+                //If the respone is ok, we return the data we recieve from the backend
+                const data = response.json();
+                return data; 
+            } else {
+                console.error("There was an issue with the response");
+                throw new Error("Network response was not ok: " + response.statusText); //Throw new error so it can be handled by the caller method.
+            }
+
+        } catch(error) {
+            console.error("There was an issue with the Post request:", error);
+            throw error; //Re-throw the error so it can be handled by the caller method
+        }
+    }
+
 }
 
 export default JSONRequests;
