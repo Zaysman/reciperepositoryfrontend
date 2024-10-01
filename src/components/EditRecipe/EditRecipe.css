@@ -1,0 +1,38 @@
+.editrecipe-container h2 {
+    text-align: center;
+}
+
+.editrecipe-container h3 {
+    text-align: center;
+}
+
+.editrecipe-container h4 {
+    text-align: center;
+}
+
+.info-container {
+    width: 100%;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: block;
+}
+
+.entry-group {
+   display: flex;
+   align-items: center;
+}
+
+.entry-group label {
+    margin-right: 5px;
+}
+
+.entry-group p {
+    margin-right: 1%;
+}
+
+.entry-group button {
+    margin-right: 5px;
+    display:block;
+}
+

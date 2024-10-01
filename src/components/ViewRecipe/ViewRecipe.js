@@ -56,7 +56,7 @@ function ViewRecipe() {
             recipe.comments = comments;
             recipe.nutritionInfo = nutritionInfo;
 
-            //Pmce all data is fetched, disable the loading state
+            //Once all data is fetched, disable the loading state
             setIsLoading(false);
         } catch(error) {
             console.error("Error fetching recipe data:", error);
@@ -94,7 +94,7 @@ function ViewRecipe() {
             }
             <h2>View Recipe</h2>
             <h4>{recipe.recipeTitle}</h4>
-            <div id="navigationBtn-container" class="entry-group">
+            <div id="navigationBtn-container" className="entry-group">
                 <button onClick = {navigateToViewRecipes} className="centered-button">To view recipes</button>
                 <button onClick = {navigateToEditRecipe} className="centered-button">To Edit Recipe</button>
             </div>
@@ -180,7 +180,6 @@ function ViewRecipe() {
                     <label>Potassium</label>
                     <p>{recipe.nutritionInfo && recipe.nutritionInfo.potassium ? recipe.nutritionInfo.potassium : "N/A"}</p>
                 </div>
-                <div className = "entry-group"></div>
             </div>
 
             <div id="ingredientsinfo-container" className="info-container">
@@ -198,6 +197,7 @@ function ViewRecipe() {
                     <p>No Ingredients to display</p>
                 )}
             </div>
+
             <div id = "preparationinfo-container" className="info-container">
                 <h4>Preparation Steps</h4>
                 {recipe.prepSteps.length > 0 ? (recipe.prepSteps.map((prepStep) => (
@@ -215,7 +215,7 @@ function ViewRecipe() {
                 {recipe.comments.length > 0 ? (recipe.comments.map((comment) => (
                     <div key = {comment.commentID} className = "entry-group">
                         <label>Author</label>
-                        <p>{comment.commentID}</p>
+                        <p>{comment.authorID}</p>
                         <label>Comment</label>
                         <p>{comment.commentContent}</p>
                         <label>Rating:</label>
@@ -223,11 +223,6 @@ function ViewRecipe() {
                     </div>
                 ))) : (<p>No Comments to display</p>)}
             </div>
-
-            
-                
-            
-
 
         </div>
     );
